@@ -12,14 +12,26 @@ PCA::PCA(unsigned int n_components)
 
 void PCA::fit(Matrix X)
 {
-    Vector medias = X.colwise().norm();
-    X = X.rowwise() - medias;
-    X = X.T*X / (X.rows()-1);
-    //completar
+    Vector medias(X.cols());
+    for(int j = 0; j < X.cols(); j++){
+      double suma = 0;
+      for(int i = 0; i < X.rows(); i++){
+        suma += X(i,j);
+      }
+      suma /= X.rows();
+      medias[j] = suma;
+    }
+    for(int i = 0; i < X.rows(); i++){
+      for(int j = 0; j < X.cols(); j++){
+        X(i,j) -= medias[j];
+      }
+    }
+    Matrix Cov = (X.transpose()*X)/(X.rows()-1);
+    _transf = get_first_eigenvalues(Cov,_n_components,1000,0.0001).second;
 }
 
 
 MatrixXd PCA::transform(SparseMatrix X)
 {
-  throw std::runtime_error("Sin implementar");
+  return MatrixXd(X*_transf);
 }

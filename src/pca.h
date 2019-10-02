@@ -10,5 +10,5 @@ public:
     Eigen::MatrixXd transform(SparseMatrix X);
 private:
     unsigned _n_components;
-    Matrix _data;
+    Matrix _transf;
 };
