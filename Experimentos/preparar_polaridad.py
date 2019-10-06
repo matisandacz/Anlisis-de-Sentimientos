@@ -7,10 +7,9 @@ import sys
 FIN = open(sys.argv[1],"rb")
 MIN_DF = float(sys.argv[2])
 
-FOUT = open("polaridad_MDF_"+str(MIN_DF),"wb")
+FOUT = open("polaridad_MDF_"+str(MIN_DF)+".pkl","wb")
 X_train,y_train = pickle.load(FIN)
 FIN.close()
-
 
 def get_polarity(ngramvocab,vocab,polaridad):
     polaridades = []
