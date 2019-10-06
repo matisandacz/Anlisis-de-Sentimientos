@@ -3,6 +3,8 @@
 #include <iostream>
 #include "knn.h"
 #include <math.h>
+#include <queue> 
+
 
 using namespace std;
 
@@ -22,89 +24,118 @@ void KNNClassifier::fit(SparseMatrix X, Matrix y)
 Vector KNNClassifier::predict(SparseMatrix X)
 {
     // Creamos vector columna a devolver
-    auto ret = Vector(X.rows()); //va a tener un 0 o un 1 segun la prediccion para cada fila de X
+  auto ret = Vector(X.rows()); //va a tener un 0 o un 1 segun la prediccion para cada fila de X
 
-    //para cada fila de X calculo la distancia con todas las filas de mi dataset
-    for (unsigned k = 0; k < X.rows(); ++k)
-    {
-        if(k % 10 == 0){
-          cout << "%" << ((double)k / (double)X.rows())*100 << endl;
-        }
-        Vector dist(_data.rows());
-        for(unsigned i = 0; i < _data.rows(); i++){
-          dist[i] = (_data.row(i) - X.row(k)).norm();
-        }
-        //Vector dist = (_data.rowwise() - X.row(k)).rowwise().norm(); no funciona porque _data es sparse
-        intVector indices(_n_neighbors); //si _n_neighbors > log2(_data.rows()) nos conviene hacer un sort
-        for(unsigned i = 0; i < _n_neighbors; i++){
-          double min = dist[0];
-          unsigned arg_min = 0;
-          for(unsigned j = 0; j < _data.rows()-i; j++){
-            if(dist[j] < min){
-              min = dist[j];
-              arg_min = j;
-            }
-          }
-          dist[arg_min] = dist[_data.rows()-1-i];
-          dist[_data.rows()-1-i] = min;
-          indices[i] = arg_min;
-        }
-        unsigned cantidad_positivas = 0;
-        for(unsigned i = 0; i < _n_neighbors; i++){
-          if(_labels(0,indices[i]) == 1)
-            cantidad_positivas++;
-        }
-        if(cantidad_positivas > _n_neighbors/2)
-          ret(k) = 1.0;
-        else
-          ret(k) = 0.0;
+  //para cada fila de X calculo la distancia con todas las filas de mi dataset
+  for (unsigned k = 0; k < X.rows(); ++k) {
+    if(k % 10 == 0){
+      cout << "%" << ((double)k / (double)X.rows())*100 << endl;
     }
+
+    priority_queue <double> vecinosLabelPos;
+    priority_queue <double> vecinosLabelNeg;
+
+    // recorremos la data y vamos modificando las queue para que
+    // tengan las menores _n_neighbors distancias de cada clase
+    for(unsigned i = 0; i < _data.rows(); i++) {
+      double d;
+      d = (_data.row(i) - X.row(k)).norm();
+
+      if (_labels(0,i) == 1)
+      {
+        vecinosLabelPos.push(d);
+      }
+      else {
+        vecinosLabelNeg.push(d);
+      }
+
+      if(vecinosLabelPos.size() > _n_neighbors) {
+        vecinosLabelPos.pop();
+      }
+
+      if(vecinosLabelNeg.size() > _n_neighbors) {
+        vecinosLabelNeg.pop();
+      };
+    }
+
+    // sacamos el mas lejano hasta que se tenga _n_neighbors vecinos
+    while(vecinosLabelPos.size() + vecinosLabelNeg.size() >  _n_neighbors) {
+      if (vecinosLabelPos.top() > vecinosLabelNeg.top())
+      {
+        vecinosLabelPos.pop()
+      }
+      else {
+        vecinosLabelNeg.pop()
+      }
+    }
+
+    // gana el que tenga mas de los primeros _n_neighbors vecinos
+    if(vecinosLabelPos.size() > vecinosLabelNeg.size())
+      ret(k) = 1.0;
+    else
+      ret(k) = 0.0;
+  }
 
     return ret;
 }
 
 Vector KNNClassifier::predict_weighted(SparseMatrix X,const Vector& covarianzas)
 {
-    // Creamos vector columna a devolver
-    auto ret = Vector(X.rows()); //va a tener un 0 o un 1 segun la prediccion para cada fila de X
 
-    //para cada fila de X calculo la distancia con todas las filas de mi dataset
-    for (unsigned k = 0; k < X.rows(); ++k)
-    {
-        if(k % 10 == 0){
-          cout << "%" << ((double)k / (double)X.rows())*100 << endl;
-        }
-        Vector dist(_data.rows());
-        for(unsigned i = 0; i < _data.rows(); i++){
-          dist[i] = weighted_norm(_data.row(i) - X.row(k),covarianzas);
-        }
-        //Vector dist = (_data.rowwise() - X.row(k)).rowwise().norm(); no funciona porque _data es sparse
-        intVector indices(_n_neighbors); //si _n_neighbors > log2(_data.rows()) nos conviene hacer un sort
-        for(unsigned i = 0; i < _n_neighbors; i++){
-          double min = dist[0];
-          unsigned arg_min = 0;
-          for(unsigned j = 0; j < _data.rows()-i; j++){
-            if(dist[j] < min){
-              min = dist[j];
-              arg_min = j;
-            }
-          }
-          dist[arg_min] = dist[_data.rows()-1-i];
-          dist[_data.rows()-1-i] = min;
-          indices[i] = arg_min;
-        }
-        unsigned cantidad_positivas = 0;
-        for(unsigned i = 0; i < _n_neighbors; i++){
-          if(_labels(0,indices[i]) == 1)
-            cantidad_positivas++;
-        }
-        if(cantidad_positivas > _n_neighbors/2)
-          ret(k) = 1.0;
-        else
-          ret(k) = 0.0;
+  // Creamos vector columna a devolver
+  auto ret = Vector(X.rows()); //va a tener un 0 o un 1 segun la prediccion para cada fila de X
+
+  //para cada fila de X calculo la distancia con todas las filas de mi dataset
+  for (unsigned k = 0; k < X.rows(); ++k) {
+    if(k % 10 == 0){
+      cout << "%" << ((double)k / (double)X.rows())*100 << endl;
     }
 
-    return ret;
+    priority_queue <double> vecinosLabelPos;
+    priority_queue <double> vecinosLabelNeg;
+
+    // recorremos la data y vamos modificando las queue para que
+    // tengan las menores _n_neighbors distancias de cada clase
+    for(unsigned i = 0; i < _data.rows(); i++) {
+      double d;
+      d = weighted_norm(_data.row(i) - X.row(k),covarianzas);
+
+      if (_labels(0,i) == 1)
+      {
+        vecinosLabelPos.push(d);
+      }
+      else {
+        vecinosLabelNeg.push(d);
+      }
+
+      if(vecinosLabelPos.size() > _n_neighbors) {
+        vecinosLabelPos.pop();
+      }
+
+      if(vecinosLabelNeg.size() > _n_neighbors) {
+        vecinosLabelNeg.pop();
+      };
+    }
+
+    // sacamos el mas lejano hasta que se tenga k vecinos
+    while(vecinosLabelPos.size() + vecinosLabelNeg.size() >  _n_neighbors) {
+      if (vecinosLabelPos.top() > vecinosLabelNeg.top())
+      {
+        vecinosLabelPos.pop()
+      }
+      else {
+        vecinosLabelNeg.pop()
+      }
+    }
+
+    // gana el que tenga mas de los primeros _n_neighbors vecinos
+    if(vecinosLabelPos.size() > vecinosLabelNeg.size())
+      ret(k) = 1.0;
+    else
+      ret(k) = 0.0;
+  }
+
+  return ret;
 }
 
 double KNNClassifier::weighted_norm(const Vector& v,const Vector& pesos){
