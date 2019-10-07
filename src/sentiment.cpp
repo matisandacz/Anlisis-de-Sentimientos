@@ -1,6 +1,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/eigen.h>
 #include "knn.h"
+#include "wdknn.h"
 #include "pca.h"
 #include "eigen.h"
 
@@ -12,6 +13,11 @@ PYBIND11_MODULE(sentiment, m) {
         .def(py::init<unsigned int>())
         .def("fit", &KNNClassifier::fit)
         .def("predict", &KNNClassifier::predict);
+    
+    py::class_<WDKNNClassifier>(m, "WDKNNClassifier")
+        .def(py::init<unsigned int>())
+        .def("fit", &WDKNNClassifier::fit)
+        .def("predict", &WDKNNClassifier::predict);
 
     py::class_<PCA>(m, "PCA")
         .def(py::init<unsigned int>())
