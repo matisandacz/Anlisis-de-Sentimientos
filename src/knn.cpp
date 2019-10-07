@@ -62,10 +62,10 @@ Vector KNNClassifier::predict(SparseMatrix X)
     while(vecinosLabelPos.size() + vecinosLabelNeg.size() >  _n_neighbors) {
       if (vecinosLabelPos.top() > vecinosLabelNeg.top())
       {
-        vecinosLabelPos.pop()
+        vecinosLabelPos.pop();
       }
       else {
-        vecinosLabelNeg.pop()
+        vecinosLabelNeg.pop();
       }
     }
 
@@ -121,10 +121,10 @@ Vector KNNClassifier::predict_weighted(SparseMatrix X,const Vector& covarianzas)
     while(vecinosLabelPos.size() + vecinosLabelNeg.size() >  _n_neighbors) {
       if (vecinosLabelPos.top() > vecinosLabelNeg.top())
       {
-        vecinosLabelPos.pop()
+        vecinosLabelPos.pop();
       }
       else {
-        vecinosLabelNeg.pop()
+        vecinosLabelNeg.pop();
       }
     }
 

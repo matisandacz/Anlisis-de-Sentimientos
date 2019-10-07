@@ -13,7 +13,7 @@ PYBIND11_MODULE(sentiment, m) {
         .def(py::init<unsigned int>())
         .def("fit", &KNNClassifier::fit)
         .def("predict", &KNNClassifier::predict);
-    
+        
     py::class_<WDKNNClassifier>(m, "WDKNNClassifier")
         .def(py::init<unsigned int>())
         .def("fit", &WDKNNClassifier::fit)
@@ -38,5 +38,4 @@ PYBIND11_MODULE(sentiment, m) {
         py::arg("num_iter")=5000,
         py::arg("epsilon")=1e-16
     );
-
 }
