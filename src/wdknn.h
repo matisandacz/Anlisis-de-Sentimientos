@@ -1,6 +1,11 @@
 #pragma once
 
 #include "types.h"
+#include <vector>
+#include <queue>
+#include <cmath>
+
+using namespace std;
 
 class WDKNNClassifier {
 public:
@@ -9,9 +14,26 @@ public:
     void fit(SparseMatrix X, Matrix y);
 
     Vector predict(SparseMatrix X);
+
+    // setear funcion de votacion
+    void set_mayority();
+    void set_inverse_distance();
+    void set_dudani();
+    void set_zabrel();
+    void set_fibonacci();
+
+
 private:
     unsigned int _n_neighbors;
     SparseMatrix _data;
     Matrix _labels;
-    double peso_vecino(double distancia, int vecino);
+    vector<double> num_fibo;
+    int vote_rule;
+
+    // funciones de votacion
+    void mayority_vote(priority_queue<double>& vecinosLabelPos, priority_queue<double>& vecinosLabelNeg, double& pesos_positivo, double& pesos_negativo);
+    void inverse_distance_vote(priority_queue<double>& vecinosLabelPos, priority_queue<double>& vecinosLabelNeg, double& pesos_positivo, double& pesos_negativo);
+    void dudani_vote(priority_queue<double>& vecinosLabelPos, priority_queue<double>& vecinosLabelNeg, double& pesos_positivo, double& pesos_negativo);
+    void zabrel_vote(priority_queue<double>& vecinosLabelPos, priority_queue<double>& vecinosLabelNeg, double& pesos_positivo, double& pesos_negativo);
+    void fibonacci_vote(priority_queue<double>& vecinosLabelPos, priority_queue<double>& vecinosLabelNeg, double& pesos_positivo, double& pesos_negativo);
 };
