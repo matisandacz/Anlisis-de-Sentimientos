@@ -30,13 +30,20 @@ def agregar_negaciones(text_train):
         text_train[i] = " ".join(por_palabras)
     return text_train
 
-def vectorizar(text_train, label_train, text_test, label_test, BINARIO, IDF, NEGACIONES):
-    vectorizer = TfidfVectorizer(ngram_range = (1,3), binary = BINARIO, strip_accents = 'unicode', use_idf = IDF, smooth_idf = IDF, max_df = 0.9, min_df = 0.001, max_features = 5000)
+def vectorizar(text_train, label_train, text_test, label_test, BINARIO, IDF, NEGACIONES, STOP_WORDS):
+    if STOP_WORDS:
+        stopwords_nuestras = stopwords.words('english')
+        stopwords_nuestras.append("br")
+        vectorizer = TfidfVectorizer(ngram_range = (1,3), binary = BINARIO, strip_accents = 'unicode', stop_words = stopwords_nuestras, use_idf = IDF, smooth_idf = IDF, max_df = 0.9, min_df = 0.001, max_features = 5000)
+    else:
+        vectorizer = TfidfVectorizer(ngram_range = (1,3), binary = BINARIO, strip_accents = 'unicode', use_idf = IDF, smooth_idf = IDF, max_df = 0.9, min_df = 0.001, max_features = 5000)
     if NEGACIONES:
         text_train = agregar_negaciones(text_train)
+        text_test = agregar_negaciones(text_test)
     vectorizer.fit(text_train)
     X_train, y_train = vectorizer.transform(text_train), np.array(label_train)
     X_test, y_test = vectorizer.transform(text_test), np.array(label_test)
+    print(X_train.shape)
     return X_train, y_train, X_test, y_test
 
 def get_instances(df, SIZE_TRAIN, SIZE_TEST):
@@ -55,7 +62,7 @@ def get_instances(df, SIZE_TRAIN, SIZE_TEST):
     print("Cantidad de instancias de test = {}".format(len(text_test)))
     return text_train, label_train, text_test, label_test
 
-def run_test(df,TRAIN_SIZE = 6225,TEST_SIZE = 500,ALPHA = None,K = None,BINARIO = False, NEGACIONES = False, NORMA_PESADA = False, IDF = False):
+def run_test(df,TRAIN_SIZE = 6225,TEST_SIZE = 500,ALPHA = None,K = None,BINARIO = False, NEGACIONES = False, NORMA_PESADA = False, IDF = False, STOP_WORDS = False):
     print("--------------------------------------------------------")
     print("Test empezado con:")
     print("Train size:",TRAIN_SIZE)
@@ -65,11 +72,12 @@ def run_test(df,TRAIN_SIZE = 6225,TEST_SIZE = 500,ALPHA = None,K = None,BINARIO 
     print("Negaciones:",NEGACIONES)
     print("Binario:",BINARIO)
     print("Norma pesada:",NORMA_PESADA)
+    print("Stop words:",STOP_WORDS)
     print("IDF:",IDF)
     text_train, label_train, text_test, label_test = get_instances(df,TRAIN_SIZE,TEST_SIZE)
 
     print("Vectorizando...")
-    X_train, y_train, X_test, y_test = vectorizar(text_train, label_train, text_test, label_test, BINARIO, IDF, NEGACIONES)
+    X_train, y_train, X_test, y_test = vectorizar(text_train, label_train, text_test, label_test, BINARIO, IDF, NEGACIONES, STOP_WORDS)
     if ALPHA != None:
         print("Obteniendo componentes principales...")
         pca = PCA(ALPHA)
@@ -108,22 +116,24 @@ if __name__ == '__main__':
     df = pd.read_csv("../data/imdb_small.csv")
     df['label'] = (df['label'] == 'pos').astype('int')
 
+    acc_ninguna = []
     acc_binario = []
     acc_negaciones = []
     acc_norma_pesada = []
     acc_idf = []
+    acc_stop_words = []
 
-    acc_binario.append(run_test(df,K = 150,BINARIO = True))
-    acc_negaciones.append(run_test(df,K = 150,NEGACIONES = True))
-    acc_norma_pesada.append(run_test(df,K = 150,NORMA_PESADA = True))
-    acc_idf.append(run_test(df,K = 150,IDF = True))
-    for ALPHA in [100,400]:
+    for ALPHA in [None,100,400]:
         for K in [50, 300]:
+            if ALPHA == None:
+                K = 150
+            acc_ninguna.append(run_test(df,ALPHA = ALPHA,K = K))
             acc_binario.append(run_test(df,ALPHA = ALPHA,K = K,BINARIO = True))
             acc_negaciones.append(run_test(df,ALPHA = ALPHA,K = K,NEGACIONES = True))
             acc_norma_pesada.append(run_test(df,ALPHA = ALPHA,K = K,NORMA_PESADA = True))
             acc_idf.append(run_test(df,ALPHA = ALPHA,K = K,IDF = True))
+            acc_stop_words.append(run_test(df,ALPHA = ALPHA,K = K,STOP_WORDS = True))
 
     fout = open("resultados_exp1.pkl","wb")
-    pickle.dump((acc_binario,acc_negaciones,acc_norma_pesada,acc_idf),fout)
+    pickle.dump((acc_ninguna,acc_binario,acc_negaciones,acc_norma_pesada,acc_idf,acc_stop_words),fout)
     fout.close()
