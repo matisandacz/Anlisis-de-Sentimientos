@@ -28,9 +28,10 @@ Vector KNNClassifier::predict(SparseMatrix X)
 
   //para cada fila de X calculo la distancia con todas las filas de mi dataset
   for (unsigned k = 0; k < X.rows(); ++k) {
-    //if(k % 10 == 0){
-    //  cout << "%" << ((double)k / (double)X.rows())*100 << endl;
-    //}
+    if(k % 10 == 0){
+      cout << "%" << (double)k/(double)X.rows() * 100 << "\r";
+      cout.flush();
+    }
 
     priority_queue <double> vecinosLabelPos;
     priority_queue <double> vecinosLabelNeg;
@@ -68,6 +69,7 @@ Vector KNNClassifier::predict(SparseMatrix X)
         vecinosLabelNeg.pop();
       }
     }
+    cout << "\n";
 
     // gana el que tenga mas de los primeros _n_neighbors vecinos
     if(vecinosLabelPos.size() > vecinosLabelNeg.size())
@@ -87,10 +89,10 @@ Vector KNNClassifier::predict_weighted(SparseMatrix X,const Vector& covarianzas)
 
   //para cada fila de X calculo la distancia con todas las filas de mi dataset
   for (unsigned k = 0; k < X.rows(); ++k) {
-    //if(k % 10 == 0){
-    //  cout << "%" << ((double)k / (double)X.rows())*100 << endl;
-    //}
-
+    if(k % 10 == 0){
+      cout << "%" << (double)k/(double)X.rows() * 100 << "\r";
+      cout.flush();
+    }
     priority_queue <double> vecinosLabelPos;
     priority_queue <double> vecinosLabelNeg;
 
@@ -116,6 +118,7 @@ Vector KNNClassifier::predict_weighted(SparseMatrix X,const Vector& covarianzas)
         vecinosLabelNeg.pop();
       };
     }
+    cout << "\n";
 
     // sacamos el mas lejano hasta que se tenga k vecinos
     while(vecinosLabelPos.size() + vecinosLabelNeg.size() >  _n_neighbors) {
