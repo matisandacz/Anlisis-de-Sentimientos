@@ -13,7 +13,7 @@ PYBIND11_MODULE(sentiment, m) {
         .def(py::init<unsigned int>())
         .def("fit", &KNNClassifier::fit)
         .def("predict", &KNNClassifier::predict)
-        .def("predict_weighted", &KNNClassifier::predict);
+        .def("predict_weighted", &KNNClassifier::predict_weighted);
 
     py::class_<WDKNNClassifier>(m, "WDKNNClassifier")
         .def(py::init<unsigned int>())

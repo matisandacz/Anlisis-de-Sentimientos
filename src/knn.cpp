@@ -69,7 +69,6 @@ Vector KNNClassifier::predict(SparseMatrix X)
         vecinosLabelNeg.pop();
       }
     }
-    cout << "\n";
 
     // gana el que tenga mas de los primeros _n_neighbors vecinos
     if(vecinosLabelPos.size() > vecinosLabelNeg.size())
@@ -77,11 +76,12 @@ Vector KNNClassifier::predict(SparseMatrix X)
     else
       ret(k) = 0.0;
   }
+  cout << "\n";
 
-    return ret;
+  return ret;
 }
 
-Vector KNNClassifier::predict_weighted(SparseMatrix X,const Vector& covarianzas)
+Vector KNNClassifier::predict_weighted(SparseMatrix X,const Vector& correlaciones)
 {
 
   // Creamos vector columna a devolver
@@ -100,7 +100,7 @@ Vector KNNClassifier::predict_weighted(SparseMatrix X,const Vector& covarianzas)
     // tengan las menores _n_neighbors distancias de cada clase
     for(unsigned i = 0; i < _data.rows(); i++) {
       double d;
-      d = weighted_norm(_data.row(i) - X.row(k),covarianzas);
+      d = weighted_norm(_data.row(i) - X.row(k),correlaciones);
 
       if (_labels(0,i) == 1)
       {
@@ -118,7 +118,6 @@ Vector KNNClassifier::predict_weighted(SparseMatrix X,const Vector& covarianzas)
         vecinosLabelNeg.pop();
       };
     }
-    cout << "\n";
 
     // sacamos el mas lejano hasta que se tenga k vecinos
     while(vecinosLabelPos.size() + vecinosLabelNeg.size() >  _n_neighbors) {
@@ -138,6 +137,7 @@ Vector KNNClassifier::predict_weighted(SparseMatrix X,const Vector& covarianzas)
       ret(k) = 0.0;
   }
 
+  cout << "\n";
   return ret;
 }
 

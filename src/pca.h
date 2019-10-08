@@ -7,8 +7,8 @@ public:
 
     void fit(Matrix X);
 
-    Eigen::MatrixXd transform(SparseMatrix X);
+    Eigen::MatrixXd transform(SparseMatrix X, int alpha);
 private:
-    unsigned _n_components;
+    unsigned _n_components; //cantidad maxima de componentes que puede dar
     Matrix _transf;
 };

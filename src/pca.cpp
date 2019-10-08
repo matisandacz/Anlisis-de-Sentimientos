@@ -27,11 +27,11 @@ void PCA::fit(Matrix X)
       }
     }
     Matrix Cov = (X.transpose()*X)/(X.rows()-1);
-    _transf = get_first_eigenvalues(Cov,_n_components,1000,0.0001).second;
+    _transf = get_first_eigenvalues(Cov,_n_components,1000,0.01).second;
 }
 
 
-MatrixXd PCA::transform(SparseMatrix X)
+MatrixXd PCA::transform(SparseMatrix X, int alpha)
 {
-  return MatrixXd(X*_transf);
+  return MatrixXd(X*(_transf.leftCols(alpha)));
 }

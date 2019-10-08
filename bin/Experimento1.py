@@ -97,7 +97,6 @@ def run_test(df,TRAIN_SIZE = 6225,TEST_SIZE = 500,ALPHA = None,K = None,BINARIO 
                 covarianzas[i] = (((X_train.todense())[:,i]-X_train[:,i].mean())*y_train_norm).sum()
                 correlaciones[i] = covarianzas[i]/(np.std((X_train.todense())[:,i])*ystd)
         y_pred = clf.predict_weighted(X_test,np.abs(correlaciones))
-    print(y_test,y_pred)
     print("Test finalizado")
     acc = accuracy_score(y_test, y_pred)
     print("Accuracy: {}".format(acc))
