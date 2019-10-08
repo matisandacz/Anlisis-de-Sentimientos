@@ -11,8 +11,8 @@ PYBIND11_MODULE(sentiment, m) {
     py::class_<KNNClassifier>(m, "KNNClassifier")
         .def(py::init<unsigned int>())
         .def("fit", &KNNClassifier::fit)
-        .def("predict", &KNNClassifier::predict);
-
+        .def("predict", &KNNClassifier::predict)
+        .def("predict_weighted", &KNNClassifier::predict_weighted);
     py::class_<PCA>(m, "PCA")
         .def(py::init<unsigned int>())
         .def("fit", &PCA::fit)
