@@ -2,7 +2,6 @@
 
 #include "types.h"
 
-
 class KNNClassifier {
 public:
     KNNClassifier(unsigned int n_neighbors);
@@ -12,6 +11,8 @@ public:
     Vector predict(SparseMatrix X);
     Vector predict_weighted(SparseMatrix X,const Vector& correlaciones);
     double weighted_norm(const Vector& v,const Vector& pesos);
+    Matrix testearK(SparseMatrix X);
+    Matrix testearK_weighted(SparseMatrix X, const Vector& correlaciones);
 private:
     unsigned int _n_neighbors;
     Matrix _data;
