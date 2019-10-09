@@ -20,7 +20,12 @@ PYBIND11_MODULE(sentiment, m) {
     py::class_<WDKNNClassifier>(m, "WDKNNClassifier")
         .def(py::init<unsigned int>())
         .def("fit", &WDKNNClassifier::fit)
-        .def("predict", &WDKNNClassifier::predict);
+        .def("predict", &WDKNNClassifier::predict)
+        .def("set_mayority", &WDKNNClassifier::set_mayority)
+        .def("set_dudani", &WDKNNClassifier::set_dudani)
+        .def("set_zabrel", &WDKNNClassifier::set_zabrel)
+        .def("set_fibonacci", &WDKNNClassifier::set_fibonacci)
+        .def("set_inverse_distance", &WDKNNClassifier::set_inverse_distance);
 
     py::class_<PCA>(m, "PCA")
         .def(py::init<unsigned int>())

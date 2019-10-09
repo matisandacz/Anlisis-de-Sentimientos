@@ -124,9 +124,10 @@ if __name__ == '__main__':
     acc_stop_words = []
 
     for ALPHA in [None,100,400]:
-        for K in [50, 300]:
-            if ALPHA == None:
-                K = 150
+        valores_K = [50, 300]
+        if ALPHA == None:
+            valores_K = [150]
+        for K in valores_K:
             acc_ninguna.append(run_test(df,ALPHA = ALPHA,K = K))
             acc_binario.append(run_test(df,ALPHA = ALPHA,K = K,BINARIO = True))
             acc_negaciones.append(run_test(df,ALPHA = ALPHA,K = K,NEGACIONES = True))
