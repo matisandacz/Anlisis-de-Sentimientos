@@ -10,3 +10,4 @@ typedef Eigen::SparseMatrix<double> SparseMatrix;
 
 typedef Eigen::VectorXd Vector;
 typedef Eigen::RowVectorXi intVector;
+
