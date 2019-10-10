@@ -89,8 +89,8 @@ Vector KNNClassifier::predict(SparseMatrix X)
 
 Matrix KNNClassifier::testearK(SparseMatrix X)
 {
-    // Creamos vector columna a devolver
-    Matrix res(X.rows(), _data.rows()); //va a tener un 0 o un 1 segun la prediccion para cada fila de X por cada k
+  // Creamos vector columna a devolver
+  Matrix res(X.rows(), _data.rows()); //va a tener un 0 o un 1 segun la prediccion para cada fila de X por cada k
 
   //para cada fila de X calculo la distancia con todas las filas de mi dataset
 	for (unsigned k = 0; k < X.rows(); ++k) {
@@ -122,7 +122,7 @@ Matrix KNNClassifier::testearK(SparseMatrix X)
 				negativos++;
 			vecinos.pop();
 			res(k, i) = (positivos > negativos)? 1.0 : 0.0;
-		}	
+		}
 	}
 	cout << "\n";
 
@@ -164,7 +164,7 @@ Matrix KNNClassifier::testearK_weighted(SparseMatrix X,const Vector& correlacion
 			vecinos.pop();
 
 			res(k, i) = (positivos > negativos)? 1.0 : 0.0;
-		}	
+		}
 	}
 	cout << "\n";
 

@@ -12,14 +12,11 @@ pair<double, Vector> power_iteration(const Matrix& X, unsigned num_iter, double 
     Vector b = Vector::Random(X.cols());
     for(unsigned i = 0; i < num_iter ; i++){
       Vector Xb = X*b;
-      double last0 = b[0];
       b = Xb/(Xb.norm());
-      if((b[0] - last0 < 0 ? last0 - b[0] : b[0] - last0) < eps)
+      eigenvalue = (b.transpose()*(Xb));
+      eigenvalue /= b.transpose()*b;
+      if((Xb-b*eigenvalue).norm() < eps)
         break;
-      //eigenvalue = (b.transpose()*(Xb));
-      //eigenvalue /= b.transpose()*b;
-      //if((Xb-b*eigenvalue).norm() < eps)
-        //break;
     }
     return make_pair(eigenvalue, b);
 }

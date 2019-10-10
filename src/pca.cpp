@@ -27,7 +27,7 @@ void PCA::fit(Matrix X)
       }
     }
     Matrix Cov = (X.transpose()*X)/(X.rows()-1);
-    _transf = get_first_eigenvalues(Cov,_n_components,1000,0.01).second;
+    _transf = get_first_eigenvalues(Cov,_n_components,1000,0.00001).second;
 }
 
 

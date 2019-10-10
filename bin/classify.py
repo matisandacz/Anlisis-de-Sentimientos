@@ -66,9 +66,9 @@ if __name__ == '__main__':
         print("Uso: python classify archivo_de_test archivo_salida")
         exit()
 
-    ALPHA = 200
+    ALPHA = None
     K = 100
-    TRAIN_SIZE = 2000 #50000
+    TRAIN_SIZE = 50000
     NEGACIONES = True
     BINARIO = True
     NORMA_PESADA = True
