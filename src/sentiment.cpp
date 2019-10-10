@@ -21,6 +21,7 @@ PYBIND11_MODULE(sentiment, m) {
         .def(py::init<unsigned int>())
         .def("fit", &WDKNNClassifier::fit)
         .def("predict", &WDKNNClassifier::predict)
+        .def("predict_weighted", &WDKNNClassifier::predict_weighted)
         .def("set_mayority", &WDKNNClassifier::set_mayority)
         .def("set_dudani", &WDKNNClassifier::set_dudani)
         .def("set_zabrel", &WDKNNClassifier::set_zabrel)

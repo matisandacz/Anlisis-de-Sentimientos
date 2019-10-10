@@ -234,3 +234,88 @@ Vector WDKNNClassifier::predict(SparseMatrix X)
 
     return ret;
 }
+
+
+Vector WDKNNClassifier::predict_weighted(SparseMatrix X,const Vector& correlaciones)
+{
+  
+    // Creamos vector columna a devolver
+    Vector ret = Vector(X.rows()); //va a tener un 0 o un 1 segun la prediccion para cada fila de X
+
+    //para cada fila de X calculo la distancia con todas las filas de mi dataset
+    for (unsigned k = 0; k < X.rows(); ++k)
+    {
+      priority_queue <double> vecinosLabelPos;
+      priority_queue <double> vecinosLabelNeg;  
+
+      // recorremos la data y vamos modificando las queue para que
+      // tengan las menores _n_neighbors distancias de cada clase
+      for(unsigned i = 0; i < _data.rows(); i++) {
+        double d;
+        d = weighted_norm(_data.row(i) - X.row(k),correlaciones);
+
+        if (_labels(0,i) == 1)
+        {
+          vecinosLabelPos.push(d);
+        }
+        else {
+          vecinosLabelNeg.push(d);
+        } 
+
+        if(vecinosLabelPos.size() > _n_neighbors) {
+          vecinosLabelPos.pop();
+        } 
+
+        if(vecinosLabelNeg.size() > _n_neighbors) {
+          vecinosLabelNeg.pop();
+        };
+      }
+
+
+      double pesos_positivo = 0.0;
+      double pesos_negativo = 0.0;
+
+
+      // sacamos los mas alejados
+      while(vecinosLabelPos.size() + vecinosLabelNeg.size() >  _n_neighbors ) {
+        if (vecinosLabelPos.top() > vecinosLabelNeg.top())
+        {
+          vecinosLabelPos.pop();
+          
+        }
+        else {
+          vecinosLabelNeg.pop();          
+        }
+      }
+
+      // se somete a votacion segun la regla que se tenga
+      switch (vote_rule) {
+        case MAYORITY: mayority_vote(vecinosLabelPos, vecinosLabelNeg, pesos_positivo, pesos_negativo); break;
+        case INVERSE: inverse_distance_vote(vecinosLabelPos, vecinosLabelNeg, pesos_positivo, pesos_negativo); break;     
+        case ZABREL: zabrel_vote(vecinosLabelPos, vecinosLabelNeg, pesos_positivo, pesos_negativo); break;
+        case FIBONACCI: fibonacci_vote(vecinosLabelPos, vecinosLabelNeg, pesos_positivo, pesos_negativo); break;
+        case DUDANI: dudani_vote(vecinosLabelPos, vecinosLabelNeg, pesos_positivo, pesos_negativo); break;      
+      }
+
+
+      if(pesos_positivo > pesos_negativo) {
+        cout << " predigo positivo" << endl;
+        ret(k) = 1.0;
+      }
+      else {
+        cout << " predigo negativo" << endl;
+        ret(k) = 0.0;
+      }
+    }
+
+    return ret;
+}
+
+
+double WDKNNClassifier::weighted_norm(const Vector& v,const Vector& pesos){
+  double res = 0;
+  for(int i = 0; i < v.size(); i++){
+    res += v[i]*v[i]*pesos[i];
+  }
+  return sqrt(res);
+}
