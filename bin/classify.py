@@ -10,7 +10,7 @@ sys.path.append("../notebooks/")
 
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sentiment import PCA, KNNClassifier
+from sentiment import PCA, KNNClassifier, WDKNNClassifier
 from nltk.corpus import stopwords
 import numpy as np
 
@@ -43,7 +43,6 @@ def vectorizar(text_train, label_train, text_test, BINARIO, IDF, NEGACIONES, STO
     vectorizer.fit(text_train)
     X_train, y_train = vectorizer.transform(text_train), np.array(label_train)
     X_test = vectorizer.transform(text_test)
-    print(X_train.shape)
     return X_train, y_train, X_test
 
 def get_instances(df, df_test, SIZE_TRAIN):
@@ -53,6 +52,8 @@ def get_instances(df, df_test, SIZE_TRAIN):
     np.random.shuffle(orden)
     text_train = text_train[orden[:SIZE_TRAIN]]
     label_train = label_train[orden[:SIZE_TRAIN]]
+    label_train = [1 if val == 'pos' else 0 for val in label_train]
+
 
     text_test = df_test["review"].tolist() #tomamos un conjunto de test al azar
     ids_test = df_test["id"]
@@ -66,19 +67,19 @@ if __name__ == '__main__':
         print("Uso: python classify archivo_de_test archivo_salida")
         exit()
 
-    ALPHA = None
-    K = 100
-    TRAIN_SIZE = 50000
+    ALPHA = 450
+    K = 280
+    TRAIN_SIZE = 6225
     NEGACIONES = True
     BINARIO = True
-    NORMA_PESADA = True
+    NORMA_PESADA = False
     STOP_WORDS = True
     IDF = True
 
     test_path = sys.argv[1]
     out_path = sys.argv[2]
 
-    df_train = pd.read_csv("../data/imdb_large.csv")
+    df_train = pd.read_csv("../data/imdb_small.csv")
     df_test = pd.read_csv(test_path)
 
     print("Vectorizando datos...")
@@ -93,12 +94,11 @@ if __name__ == '__main__':
         X_test = pca.transform(X_test, ALPHA)
 
     clf = KNNClassifier(K)
-
     clf.fit(X_train, y_train)
     print("Prediciendo...")
     print(X_test.shape)
     if not NORMA_PESADA:
-        y_pred = clf.predict(X_test)
+        y_pred = clf1.predict(X_test)
     else:
         y_train_norm = y_train - y_train.mean()
         ystd = np.std(y_train)
@@ -114,9 +114,9 @@ if __name__ == '__main__':
         y_pred = clf.predict_weighted(X_test,np.abs(correlaciones))
 
     # Convierto a 'pos' o 'neg'
-    labels = ['pos' if val == 1 else 'neg' for val in y_pred]
+    labels1 = ['pos' if val == 1 else 'neg' for val in y_pred]
 
-    df_out = pd.DataFrame({"id": ids_test, "label": labels})
+    df_out = pd.DataFrame({"id": ids_test, "label": labels1})
 
     df_out.to_csv(out_path, index=False)
 
