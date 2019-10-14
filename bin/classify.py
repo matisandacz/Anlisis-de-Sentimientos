@@ -98,7 +98,7 @@ if __name__ == '__main__':
     print("Prediciendo...")
     print(X_test.shape)
     if not NORMA_PESADA:
-        y_pred = clf1.predict(X_test)
+        y_pred = clf.predict(X_test)
     else:
         y_train_norm = y_train - y_train.mean()
         ystd = np.std(y_train)
